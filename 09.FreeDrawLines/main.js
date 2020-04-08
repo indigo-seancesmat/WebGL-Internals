@@ -11,13 +11,14 @@ in vec2 position;
 uniform float flipY;
 void main () {
     gl_Position = vec4(position.x, position.y * flipY, 0.0, 1.0);
+    gl_PointSize = 10.0;
 }`;
 var fragmentShader = `#version 300 es
 precision mediump float;
 out vec4 color;
-uniform vec3 inputColor;
+uniform vec4 inputColor;
 void main () {
-    color = vec4(inputColor, 1.0);
+    color = inputColor;
 }`;
 
 // Step2: Create Program
@@ -34,7 +35,7 @@ initializeEvents(gl, (startX, startY, endX, endY) => {
   };
   var v = utils.getGPUCoords(coordsObj);
   //   var color = utils.getTextureColor(coordsObj);
-  var vertices = [v.startX, v.startY, v.endX, v.endY];
+  vertices.push(v.startX, v.startY, v.endX, v.endY);
   console.log(vertices);
   var data = new Float32Array(vertices);
   var buffer = utils.createAndBindBuffer(
@@ -56,8 +57,8 @@ initializeEvents(gl, (startX, startY, endX, endY) => {
   gl.uniform1f(flipY, -1.0);
 
   var inputColor = gl.getUniformLocation(program, "inputColor");
-  gl.uniform3fv(inputColor, [Math.random(), Math.random(), Math.random()]);
+  gl.uniform4fv(inputColor, [Math.random(), Math.random(), Math.random(), 1.0]);
 
   // Step5: Render the rectangle
-  gl.drawArrays(gl.LINES, 0, vertices.length / 2);
+  gl.drawArrays(gl.POINTS, 0, vertices.length / 2);
 });
