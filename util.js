@@ -62,6 +62,16 @@ class WebGLUtils {
       endY: -1.0 + (obj.endY / gl.canvas.height) * 2,
     };
   };
+  getGPUCoords0To2 = (obj) => {
+    // Input:  -1.0 -> 1.0
+    // Output: 0.0 -> 2.0
+    return {
+      startX: 1.0 + obj.startX,
+      startY: 1.0 + obj.startY,
+      endX: 1.0 + obj.endX,
+      endY: 1.0 + obj.endY,
+    };
+  };
   getTextureColor = (obj) => {
     return {
       red: obj.startX / gl.canvas.width,
