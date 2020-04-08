@@ -1,7 +1,7 @@
-var startX, startY, endX, endY;
-var initializeEvents = (gl) => {
+var initializeEvents = (gl, methodName) => {
   var canvas = gl.canvas;
   var isDown = false;
+  var startX, startY, endX, endY;
   canvas.addEventListener("mouseup", () => {
     isDown = false;
   });
@@ -15,7 +15,7 @@ var initializeEvents = (gl) => {
       // dragging
       endX = e.offsetX;
       endY = e.offsetY;
-      updateRectangle();
+      methodName(startX, startY, endX, endY);
     }
   });
 };

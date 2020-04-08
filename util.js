@@ -51,4 +51,23 @@ class WebGLUtils {
     ); // 2 because vec 2 above
     return position;
   };
+  getGPUCoords = (obj) => {
+    // -1.0 -> 1.0 -> 0.0->1.0
+    // 0.0->1.0 -> 0.0->2.0
+    // 1.0 -> -1.0->1.0
+    return {
+      startX: -1.0 + (obj.startX / gl.canvas.width) * 2,
+      startY: -1.0 + (obj.startY / gl.canvas.height) * 2,
+      endX: -1.0 + (obj.endX / gl.canvas.width) * 2,
+      endY: -1.0 + (obj.endY / gl.canvas.height) * 2,
+    };
+  };
+  getTextureColor = (obj) => {
+    return {
+      red: obj.startX / gl.canvas.width,
+      green: obj.startY / gl.canvas.height,
+      blue: obj.endX / gl.canvas.width,
+      alpha: obj.endY / gl.canvas.height,
+    };
+  };
 }
