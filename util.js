@@ -40,14 +40,14 @@ class WebGLUtils {
   linkGPUAndCPU = (gl, obj) => {
     var position = gl.getAttribLocation(obj.program, obj.gpuVariable);
     gl.enableVertexAttribArray(position);
-    gl.bindBuffer(obj.channel, obj.buffer); // need to bind again since we bound to null above
+    gl.bindBuffer(obj.channel || gl.ARRAY_BUFFER, obj.buffer); // need to bind again since we bound to null above
     gl.vertexAttribPointer(
       position,
       obj.dims,
-      obj.dataType,
-      obj.normalize,
-      obj.stride,
-      obj.offset
+      obj.dataType || gl.FLOAT,
+      obj.normalize || gl.FALSE,
+      obj.stride || 0,
+      obj.offset || 0
     ); // 2 because vec 2 above
     return position;
   };
