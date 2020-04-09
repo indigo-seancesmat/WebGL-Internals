@@ -44,7 +44,8 @@ grids.oninput = (e) => {
   endY = startY + step;
 
   var vertices = [],
-    colors = [];
+    colors = [],
+    toggle = false;
 
   for (var i = 0; i < input; i++) {
     for (var j = 0; j < input; j++) {
@@ -66,7 +67,10 @@ grids.oninput = (e) => {
       startX = endX;
       endX += step;
 
-      var color = [Math.random(), Math.random(), Math.random()];
+      var white = [1.0, 1.0, 1.0];
+      var black = [0.0, 0.0, 0.0];
+
+      var color = toggle ? white : black;
       colors = colors
         .concat(color)
         .concat(color)
@@ -74,6 +78,10 @@ grids.oninput = (e) => {
         .concat(color)
         .concat(color)
         .concat(color);
+      toggle = !toggle;
+    }
+    if (input % 2 === 0) {
+      toggle = !toggle;
     }
     (startX = -1.0), (startY = endY);
     endX = startX + step;
