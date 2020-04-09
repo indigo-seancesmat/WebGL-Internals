@@ -23,11 +23,14 @@ uniform sampler2D uImage, uElephant;
 uniform float activeIndex;
 out vec4 color;
 void main () {
-    if (activeIndex == 0.0) {
-        color = texture(uImage, textureCoords);
-    } else {
-        color = texture(uElephant, textureCoords);
-    }
+    vec4 tex1 = texture(uImage, textureCoords);
+    vec4 tex2 = texture(uElephant, textureCoords);
+    color = mix(tex1, tex2, 0.5);
+    // if (activeIndex == 0.0) {
+    //     color = texture(uImage, textureCoords);
+    // } else {
+    //     color = texture(uElephant, textureCoords);
+    // }
 }`;
 
 // Step2: Create Program
@@ -50,21 +53,17 @@ var texBuffer = utils.createAndBindBuffer(
   new Float32Array(textureCoordinates)
 );
 
-var render1 = document.getElementById("render1");
-var render2 = document.getElementById("render2");
+var mix = document.getElementById("mix");
 gl.useProgram(program);
-var activeIndex = gl.getUniformLocation(program, "activeIndex");
 
-render1.onclick = () => {
-  // course logo
-  gl.uniform1f(activeIndex, 0.0);
-  render(texture);
-};
+var uImage = gl.getUniformLocation(program, "uImage");
+var uElephant = gl.getUniformLocation(program, "uElephant");
 
-render2.onclick = () => {
-  // elephant img
-  gl.uniform1f(activeIndex, 1.0);
-  render(elephantTexture);
+gl.uniform1i(uImage, 0);
+gl.uniform1i(uElephant, 1);
+
+mix.onclick = () => {
+  render();
 };
 
 var elephantTexture, texture;
@@ -79,7 +78,7 @@ image.onload = () => {
   texture = utils.createAndBindTexture(gl, image);
 };
 
-var render = (tex) => {
+var render = () => {
   //step4
   utils.linkGPUAndCPU(gl, {
     program: program,
@@ -93,8 +92,10 @@ var render = (tex) => {
     dims: 2,
     gpuVariable: "texCoords",
   });
-
-  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.activeTexture(gl.TEXTURE0 + 0);
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.activeTexture(gl.TEXTURE0 + 1);
+  gl.bindTexture(gl.TEXTURE_2D, elephantTexture);
 
   // Step5
   gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 2);
