@@ -80,4 +80,19 @@ class WebGLUtils {
       alpha: obj.endY / gl.canvas.height,
     };
   };
+  getCircleCoordinates = (centerX, centerY, radiusX, numOfPoints, isLine) => {
+    var circleCoords = [];
+    var radiusY = (radiusX / gl.canvas.height) * gl.canvas.width;
+    for (var i = 0; i < numOfPoints; i++) {
+      // 2*Math.PI*r
+      var circumference = 2 * Math.PI * (i / numOfPoints);
+      var x = centerX + radiusX * Math.cos(circumference);
+      var y = centerY + radiusY * Math.sin(circumference);
+      if (isLine) {
+        circleCoords.push(centerX, centerY);
+      }
+      circleCoords.push(x, y);
+    }
+    return circleCoords;
+  };
 }
