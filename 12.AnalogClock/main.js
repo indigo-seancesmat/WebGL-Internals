@@ -64,44 +64,66 @@ var hoursBuffer = utils.createAndBindBuffer(
 );
 
 // Step 4
-gl.useProgram(program);
-utils.linkGPUAndCPU(gl, {
-  program: program,
-  buffer: buffer,
-  dims: 2,
-  gpuVariable: "position",
-});
+var getLineCoords = (input) => {
+  var index = 0;
+  var start = 15;
+  if (input < start) {
+    index = start - input;
+  } else {
+    index = 60 - input + start;
+  }
+  return index * 2;
+};
+setInterval(() => {
+  var d = new Date();
+  var hours = d.getHours() > 12 ? d.getHours() - 12 : d.getHours();
+  var minutes = d.getMinutes();
+  var seconds = d.getSeconds();
+  gl.useProgram(program);
+  utils.linkGPUAndCPU(gl, {
+    program: program,
+    buffer: buffer,
+    dims: 2,
+    gpuVariable: "position",
+  });
 
-var inputColor = gl.getUniformLocation(program, "inputColor");
-gl.uniform3fv(inputColor, [0.2, 0.8, 0.5]);
+  var inputColor = gl.getUniformLocation(program, "inputColor");
+  gl.uniform3fv(inputColor, [0.2, 0.8, 0.5]);
 
-// Step5: Render the rectangle
-gl.drawArrays(gl.POINTS, 0, circleVertices.length / 2);
+  // Step5: Render the rectangle
+  gl.drawArrays(gl.POINTS, 0, circleVertices.length / 2);
 
-utils.linkGPUAndCPU(gl, {
-  program: program,
-  buffer: pointsBuffer,
-  dims: 2,
-  gpuVariable: "position",
-});
-gl.drawArrays(gl.POINTS, 0, secondsVertices.length / 2);
+  utils.linkGPUAndCPU(gl, {
+    program: program,
+    buffer: pointsBuffer,
+    dims: 2,
+    gpuVariable: "position",
+  });
+  gl.drawArrays(gl.POINTS, 0, secondsVertices.length / 2);
 
-utils.linkGPUAndCPU(gl, {
-  program: program,
-  buffer: secondsBuffer,
-  dims: 2,
-  gpuVariable: "position",
-});
-utils.linkGPUAndCPU(gl, {
-  program: program,
-  buffer: minutesBuffer,
-  dims: 2,
-  gpuVariable: "position",
-});
-utils.linkGPUAndCPU(gl, {
-  program: program,
-  buffer: hoursBuffer,
-  dims: 2,
-  gpuVariable: "position",
-});
-gl.drawArrays(gl.LINES, 0, 120);
+  utils.linkGPUAndCPU(gl, {
+    program: program,
+    buffer: secondsBuffer,
+    dims: 2,
+    gpuVariable: "position",
+  });
+  gl.drawArrays(gl.LINES, getLineCoords(seconds), 2);
+  utils.linkGPUAndCPU(gl, {
+    program: program,
+    buffer: minutesBuffer,
+    dims: 2,
+    gpuVariable: "position",
+  });
+  gl.drawArrays(gl.LINES, getLineCoords(minutes), 2);
+  utils.linkGPUAndCPU(gl, {
+    program: program,
+    buffer: hoursBuffer,
+    dims: 2,
+    gpuVariable: "position",
+  });
+  gl.drawArrays(
+    gl.LINES,
+    getLineCoords(hours * 5 + Math.floor(minutes / 60)),
+    2
+  );
+}, 1000);
