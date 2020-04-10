@@ -1,9 +1,12 @@
-var initializeEvents = (gl, methodName) => {
+var initializeEvents = (gl, methodName, method2) => {
   var canvas = gl.canvas;
   var isDown = false;
   var startX, startY, endX, endY;
-  canvas.addEventListener("mouseup", () => {
+  canvas.addEventListener("mouseup", (e) => {
     isDown = false;
+    endX = e.offsetX;
+    endY = e.offsetY;
+    method2(startX, startY, endX, endY);
   });
   canvas.addEventListener("mousedown", (e) => {
     startX = e.offsetX;

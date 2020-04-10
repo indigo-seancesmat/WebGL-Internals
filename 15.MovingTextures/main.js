@@ -13,7 +13,7 @@ in vec2 position; // vertices: WebGl vertex coords
 in vec2 texCoords; // Texture coordinates;
 out vec2 textureCoords; // Take input from vertex shader and serve to fragment shader
 void main () {
-    gl_Position = vec4(position, 0.0, 1.0);
+    gl_Position = vec4(position.x, position.y * -1.0, 0.0, 1.0);
     textureCoords = texCoords;
 }`;
 var fragmentShader = `#version 300 es
@@ -37,8 +37,16 @@ void main () {
 var program = utils.getProgram(gl, vertexShader, fragmentShader);
 
 // Step3
-var vertices = utils.prepareRectVec2(-1.0, -1.0, 1.0, 1.0);
-var textureCoordinates = utils.prepareRectVec2(0.0, 1.0, 1.0, 0.0);
+var currSX = -1.0,
+  currSY = -1.0,
+  currEX = 1.0,
+  currEY = 1.0;
+var lastSX = -1.0,
+  lastSY = -1.0,
+  lastEX = 1.0,
+  lastEY = 1.0;
+var vertices = utils.prepareRectVec2(currSX, currSY, currEX, currEY);
+var textureCoordinates = utils.prepareRectVec2(0.0, 0.0, 1.0, 1.0);
 
 var buffer = utils.createAndBindBuffer(
   gl,
@@ -100,3 +108,50 @@ var render = () => {
   // Step5
   gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 2);
 };
+
+var getDiff = (startX, startY, endX, endY) => {
+  var obj = {
+    startX,
+    startY,
+    endX,
+    endY,
+  };
+  var v = utils.getGPUCoords(obj); // -1 to +1
+  v = utils.getGPUCoords0To2(v); // 0 to 2
+  var diffX = v.endX - v.startX;
+  var diffY = v.endY - v.startY;
+  return {
+    x: diffX,
+    y: diffY,
+  };
+};
+
+initializeEvents(
+  gl,
+  (startX, startY, endX, endY) => {
+    var diff = getDiff(startX, startY, endX, endY);
+    currSX += diff.x;
+    currSY += diff.y;
+    currEX += diff.x;
+    currEY += diff.y;
+    vertices = utils.prepareRectVec2(currSX, currSY, currEX, currEY);
+    buffer = utils.createAndBindBuffer(
+      gl,
+      gl.ARRAY_BUFFER,
+      gl.STATIC_DRAW,
+      new Float32Array(vertices)
+    );
+    render();
+    currSX = lastSX;
+    currSY = lastSY;
+    currEX = lastEX;
+    currEY = lastEY;
+  },
+  (startX, startY, endX, endY) => {
+    var diff = getDiff(startX, startY, endX, endY);
+    lastSX += diff.x;
+    lastSY += diff.y;
+    lastEX += diff.x;
+    lastEY += diff.y;
+  }
+);
