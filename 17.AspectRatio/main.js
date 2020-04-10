@@ -24,13 +24,7 @@ uniform float activeIndex;
 out vec4 color;
 void main () {
     vec4 tex1 = texture(uImage, textureCoords);
-    vec4 tex2 = texture(uElephant, textureCoords);
-    color = mix(tex1, tex2, 0.5);
-    // if (activeIndex == 0.0) {
-    //     color = texture(uImage, textureCoords);
-    // } else {
-    //     color = texture(uElephant, textureCoords);
-    // }
+    color = tex1;
 }`;
 
 // Step2: Create Program
@@ -68,22 +62,37 @@ var uImage = gl.getUniformLocation(program, "uImage");
 var uElephant = gl.getUniformLocation(program, "uElephant");
 
 gl.uniform1i(uImage, 0);
-gl.uniform1i(uElephant, 1);
 
 mix.onclick = () => {
   render();
 };
 
-var elephantTexture, texture;
-var image = new Image();
-var elephantImage = new Image();
-elephantImage.src = "../elephant.jpeg";
-elephantImage.onload = () => {
-  elephantTexture = utils.createAndBindTexture(gl, elephantImage);
+var getCoords = () => {
+  var obj = {
+    startX: AR.x1,
+    startY: AR.y1,
+    endX: AR.x2,
+    endY: AR.y2,
+  };
+  return utils.getGPUCoords(obj); // -1 to +1
 };
-image.src = "../courselogo.jpeg";
+
+var texture;
+var image = new Image();
+var AR = null;
+image.src = "../elephant.jpeg";
 image.onload = () => {
+  AR = utils.getAspectRatio(gl, image);
+  var v = getCoords();
+  vertices = utils.prepareRectVec2(v.startX, v.startY, v.endX, v.endY);
+  buffer = utils.createAndBindBuffer(
+    gl,
+    gl.ARRAY_BUFFER,
+    gl.STATIC_DRAW,
+    new Float32Array(vertices)
+  );
   texture = utils.createAndBindTexture(gl, image);
+  render();
 };
 
 var render = () => {
@@ -102,8 +111,6 @@ var render = () => {
   });
   gl.activeTexture(gl.TEXTURE0 + 0);
   gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.activeTexture(gl.TEXTURE0 + 1);
-  gl.bindTexture(gl.TEXTURE_2D, elephantTexture);
 
   // Step5
   gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 2);
@@ -157,5 +164,28 @@ initializeEvents(
     currSY = lastSY;
     currEX = lastEX;
     currEY = lastEY;
+  },
+  (deltaY) => {
+    if (deltaY > 0) {
+      // zoom out
+      currSX -= currSX * 0.1;
+      currSY -= currSY * 0.1;
+      currEX -= currEX * 0.1;
+      currEY -= currEY * 0.1;
+    } else {
+      // zoom in
+      currSX += currSX * 0.1;
+      currSY += currSY * 0.1;
+      currEX += currEX * 0.1;
+      currEY += currEY * 0.1;
+    }
+    vertices = utils.prepareRectVec2(currSX, currSY, currEX, currEY);
+    buffer = utils.createAndBindBuffer(
+      gl,
+      gl.ARRAY_BUFFER,
+      gl.STATIC_DRAW,
+      new Float32Array(vertices)
+    );
+    render();
   }
 );

@@ -125,4 +125,34 @@ class WebGLUtils {
       startY,
     ];
   };
+
+  getAspectRatio = (gl, img) => {
+    var cols = img.width;
+    var rows = img.height;
+    var imageAR = cols / rows;
+    var canvasAR = gl.canvas.width / gl.canvas.height;
+    var startX, startY, renderableW, renderableH;
+    if (imageAR < canvasAR) {
+      renderableH = gl.canvas.height;
+      renderableW = cols * (renderableH / rows);
+      startX = (gl.canvas.width - renderableW) / 2;
+      startY = 0;
+    } else if (imageAR > canvasAR) {
+      renderableW = gl.canvas.width;
+      renderableH = rows * (renderableW / cols);
+      startX = 0;
+      startY = (gl.canvas.height - renderableH) / 2;
+    } else {
+      startX = 0;
+      startY = 0;
+      renderableW = gl.canvas.width;
+      renderableH = gl.canvas.height;
+    }
+    return {
+      x1: startX,
+      y1: startY,
+      x2: startX + renderableW,
+      y2: startY + renderableH,
+    };
+  };
 }

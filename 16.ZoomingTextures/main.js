@@ -157,5 +157,28 @@ initializeEvents(
     currSY = lastSY;
     currEX = lastEX;
     currEY = lastEY;
+  },
+  (deltaY) => {
+    if (deltaY > 0) {
+      // zoom out
+      currSX -= currSX * 0.1;
+      currSY -= currSY * 0.1;
+      currEX -= currEX * 0.1;
+      currEY -= currEY * 0.1;
+    } else {
+      // zoom in
+      currSX += currSX * 0.1;
+      currSY += currSY * 0.1;
+      currEX += currEX * 0.1;
+      currEY += currEY * 0.1;
+    }
+    vertices = utils.prepareRectVec2(currSX, currSY, currEX, currEY);
+    buffer = utils.createAndBindBuffer(
+      gl,
+      gl.ARRAY_BUFFER,
+      gl.STATIC_DRAW,
+      new Float32Array(vertices)
+    );
+    render();
   }
 );

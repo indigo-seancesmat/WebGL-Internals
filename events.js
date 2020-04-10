@@ -1,4 +1,4 @@
-var initializeEvents = (gl, methodName, method2) => {
+var initializeEvents = (gl, methodName, method2, zoom) => {
   var canvas = gl.canvas;
   var isDown = false;
   var startX, startY, endX, endY;
@@ -20,5 +20,8 @@ var initializeEvents = (gl, methodName, method2) => {
       endY = e.offsetY;
       methodName(startX, startY, endX, endY);
     }
+  });
+  canvas.addEventListener("mousewheel", (e) => {
+    zoom(e.deltaY);
   });
 };
