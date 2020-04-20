@@ -50,6 +50,20 @@ class WebGLUtils {
     return texture;
   };
 
+  createAndBindFramebuffer = (gl, image) => {
+    var texture = this.createAndBindTexture(gl, image);
+    var framebuffer = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+    gl.framebufferTexture2D(
+      gl.FRAMEBUFFER,
+      gl.COLOR_ATTACHMENT0,
+      gl.TEXTURE_2D,
+      texture,
+      0
+    );
+    return { fb: framebuffer, tex: texture };
+  };
+
   linkGPUAndCPU = (gl, obj) => {
     var position = gl.getAttribLocation(obj.program, obj.gpuVariable);
     gl.enableVertexAttribArray(position);
